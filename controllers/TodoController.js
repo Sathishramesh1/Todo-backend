@@ -79,6 +79,7 @@ const handleEdit=async(req,res)=>{
     try {
         const todoId = req.params.id;
         const {title}=req.body;
+        console.log(todoId,title);
 
     const todo = await Todo.findById(todoId);
     console.log(todo);
