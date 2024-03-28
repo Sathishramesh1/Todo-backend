@@ -1,5 +1,5 @@
 import express from 'express'
-import { createTodo, getAllTodo, updateStatus } from '../controllers/TodoController.js';
+import { createTodo, getAllTodo, handleDelete, handleEdit, updateStatus } from '../controllers/TodoController.js';
 
 
 const router=express.Router();
@@ -14,6 +14,12 @@ router.route("/create").post(createTodo);
 
 //marking todo status
 router.route("/mark/:id").patch(updateStatus);
+
+//editing todo title
+router.route("edit/:id").put(handleEdit);
+
+//delete the todo
+router.route("/remove/:id").delete(handleDelete)
 
 
 

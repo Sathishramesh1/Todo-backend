@@ -62,20 +62,72 @@ const updateStatus=async(req,res)=>{
 
     
     todo.completed = true; 
-
-    // Save the updated todo item
     await todo.save();
 
-    // Return the updated todo item
+    
+return  res.status(200).json(todo);
+
+    } catch (error) {
+        console.log(error);
+        return  res.status(500).send("Internal server Error")
+    }
+}
+
+export {updateStatus}
+
+const handleEdit=async(req,res)=>{
+    try {
+        const todoId = req.params.id;
+        const {title}=req.body;
+
+    const todo = await Todo.findById(todoId);
+
+   
+    if (!todo) {
+      return res.status(404).json({ error: "Todo item not found" });
+    }
+
+    
+    todo.title = title; 
+    await todo.save();
+
+    
 return  res.status(200).json(todo);
 
         
     } catch (error) {
         console.log(error);
-        return  res.status(500).send("Internal server Error")
-         
+        return  res.status(500).send("Internal server Error");
         
     }
 }
 
-export {updateStatus}
+export {handleEdit}
+
+
+//to remove the todo
+
+const handleDelete=async(req,res)=>{
+    try {
+
+        const todoId = req.params.id;
+      
+
+
+        const deletedTodo = await Todo.findByIdAndDelete(todoId);
+
+    
+        if (!deletedTodo) {
+            return res.status(404).json({ error: "Todo item not found" });
+        }
+
+      
+        return res.status(200).json(deletedTodo);
+        
+    } catch (error) {
+        console.log(error);
+        return  res.status(500).send("Internal server Error");
+        
+    }
+}
+export {handleDelete}
