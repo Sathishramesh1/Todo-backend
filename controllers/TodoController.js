@@ -1,6 +1,4 @@
-import {User} from '../../models/User.js'
 import { Todo } from '../model/Todo.js';
-
 
 
 const getAllTodo=async(req,res)=>{
