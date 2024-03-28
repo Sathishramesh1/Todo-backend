@@ -78,7 +78,7 @@ export {updateStatus}
 const handleEdit=async(req,res)=>{
     try {
         const todoId = req.params.id;
-        const {title}=req.body;
+        const title=req.body.title
         console.log(todoId,title);
 
     const todo = await Todo.findById(todoId);
