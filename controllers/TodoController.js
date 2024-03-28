@@ -27,6 +27,7 @@ export {getAllTodo}
 
 const createTodo=async(req,res)=>{
     try {
+        const {title}=req.body;
         if (!title) {
             return res.status(400).send("Title is required");
         }
