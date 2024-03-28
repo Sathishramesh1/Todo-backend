@@ -6,11 +6,11 @@ const getAllTodo=async(req,res)=>{
      const userTodo=await Todo.find({user: req.user._id });
      
 
-     if (userTodo.length === 0) {
-        return res.status(404).send("No todos found for the user");
-    }
+    //  if (userTodo.length === 0) {
+    //     return res.status(404).send("No todos found for the user");
+    // }
 
-    return res.status(200).json(userTodos);
+    return res.status(200).json(userTodo);
 
     } catch (error) {
         console.log(error);
