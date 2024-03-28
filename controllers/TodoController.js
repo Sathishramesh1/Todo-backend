@@ -91,8 +91,7 @@ const handleEdit=async(req,res)=>{
     
     todo.title = title; 
     await todo.save();
-
-    
+ 
 return  res.status(200).json(todo);
 
         
@@ -104,6 +103,7 @@ return  res.status(200).json(todo);
 }
 
 export {handleEdit}
+
 
 
 //to remove the todo
