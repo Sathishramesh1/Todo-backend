@@ -1,8 +1,8 @@
 import express from 'express'
-import {Register} from '../controllers/UserController/Register.js'
-import {Login} from '../controllers/UserController/Login.js'
-import {Forget} from '../controllers/UserController/Forget.js'
-import {Reset} from '../controllers/UserController/Reset.js'
+import {Register} from '../controllers/UserController.js'
+import {Login} from '../controllers/UserController.js'
+// import {Forget} from '../controllers/UserController/'
+// import {Reset} from '../controllers/UserController/Reset.js'
 
 
 const router=express.Router();
@@ -14,10 +14,10 @@ router.route('/register').post(Register);
 router.route('/login').post(Login);
 
 //route for generating password reset mail
-router.route('/forget').post(Forget);
+// router.route('/forget').post(Forget);
 
 //route for resetting new password
-router.route('/reset').post(Reset);
+// router.route('/reset').post(Reset);
 
 
 

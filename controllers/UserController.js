@@ -49,13 +49,13 @@ const Register=async(req,res)=>{
     const hashedPassword = await bcrypt.hash(password,10)
     const newUser= await new User({ ...req.body, password: hashedPassword }).save();
     
-    res.status(201).json({
+   return  res.status(201).json({
         status:'success',
         message:"new user created"
     })
     }catch(err){
         console.log("error in creating new user",err);
-        res.status(500).send("Internal Error");
+       return res.status(500).send("Internal Error");
     }
 
 }
