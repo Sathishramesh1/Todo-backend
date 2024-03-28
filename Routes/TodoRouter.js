@@ -1,5 +1,5 @@
 import express from 'express'
-import { createTodo, getAllTodo } from '../controllers/TodoController.js';
+import { createTodo, getAllTodo, updateStatus } from '../controllers/TodoController.js';
 
 
 const router=express.Router();
@@ -13,7 +13,7 @@ router.route('/getall').get(getAllTodo);
 router.route("/create").post(createTodo);
 
 //marking todo status
-router.route("/mark/:id").patch();
+router.route("/mark/:id").patch(updateStatus);
 
 
 
