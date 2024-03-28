@@ -81,7 +81,7 @@ const handleEdit=async(req,res)=>{
         const {title}=req.body;
 
     const todo = await Todo.findById(todoId);
-
+    console.log(todo);
    
     if (!todo) {
       return res.status(404).json({ error: "Todo item not found" });
