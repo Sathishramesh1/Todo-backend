@@ -16,7 +16,7 @@ router.route("/create").post(createTodo);
 router.route("/mark/:id").patch(updateStatus);
 
 //editing todo title
-router.route("update/:id").post(handleEdit);
+router.route("/update/:id").post(handleEdit);
 
 //delete the todo
 router.route("/remove/:id").delete(handleDelete)
