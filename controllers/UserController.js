@@ -1,5 +1,5 @@
 import * as bcrypt from 'bcrypt'
-import {User} from '../../models/User.js'
+import {User} from '../model/User.js'
 import jwt from 'jsonwebtoken'
 
 
