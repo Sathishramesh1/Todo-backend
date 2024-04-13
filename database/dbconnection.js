@@ -11,7 +11,7 @@ const pool = new Pool({
 
 const dbconnection = async () => {
   try {
-    console.log("Database Host:", process.env.DB_HOST),"hddddddddddddddddddddddddddddd";
+    console.log("Database Host:", process.env.DB_HOST);
     console.log("Database Port:", process.env.DB_PORT);
     await pool.connect();
    

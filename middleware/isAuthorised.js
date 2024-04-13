@@ -1,8 +1,17 @@
-import {User} from '../model/User.js'
+import { pool } from '../database/dbconnection';
 import jwt from 'jsonwebtoken'
 
- function getUserById(id) {
-    return User.findById(id).select("_id name email");
+ async function getUserById(id) {
+  try {
+    const query = {
+      text: 'SELECT _id, name, email FROM users WHERE _id = $1',
+      values: [id],
+    };
+    const result = await pool.query(query);
+    return result.rows[0]; // Assuming only one user is returned
+  } catch (error) {
+    throw new Error('Error fetching user from the database');
+  }
   }
 
 
