@@ -1,17 +1,25 @@
-import { Todo } from '../model/Todo.js';
-
+import { pool } from '../database/dbconnection.js';
 
 const getAllTodo=async(req,res)=>{
     try {
-     const userTodo=await Todo.find({user: req.user._id });
-    return res.status(200).json(userTodo);
+    
+        const query = {
+            text: 'SELECT * FROM todos WHERE user_id = $1',
+            values: [req.user._id]
+        };
 
-    } catch (error) {
-        console.log(error);
-       return  res.status(500).send("Internal server Error")
+        // Execute the query using the datase
+        const result = await pool.query(query);
+
         
-    }
+        const userTodo = result.rows;
 
+        
+        return res.status(200).json(userTodo);
+    } catch (error) {
+        console.error('Error fetching todos:', error);
+        return res.status(500).send("Internal server Error");
+    }
 
 }
 
@@ -20,28 +28,30 @@ export {getAllTodo}
 //to create todo
 const createTodo=async(req,res)=>{
     try {
-        const {title}=req.body;
+
+        const { title } = req.body;
+
         if (!title) {
             return res.status(400).send("Title is required");
         }
-       
-        const newTodo = new Todo({
-            title: title,
-            user: req.user._id, 
-           
-        });
+        const query = {
+            text: 'INSERT INTO todos (title, user_id) VALUES ($1, $2) RETURNING *',
+            values: [title, req.user._id]
+        };
 
-        
-        const savedTodo = await newTodo.save();
+    
+        const result = await pool.query(query);
 
-        // Send back the created todo as a response
-        return res.status(201).json(savedTodo);
-        
+        // Extract the inserted todo from the query result
+        const newTodo = result.rows[0];
+
+        // Send back the created todo as a JSON response with a status code of 201 (Created)
+        return res.status(201).json(newTodo);
     } catch (error) {
-        console.log(error);
-       return  res.status(500).send("Internal server Error")
-        
+        console.error('Error creating todo:', error);
+        return res.status(500).send("Internal server Error");
     }
+
 }
 
 export {createTodo}
@@ -51,55 +61,60 @@ export {createTodo}
 
 const updateStatus=async(req,res)=>{
     try {
+
         const todoId = req.params.id;
 
-    const todo = await Todo.findById(todoId);
+        const query = {
+            text: 'UPDATE todos SET completed = $1 WHERE id = $2 RETURNING *',
+            values: [true, todoId]
+        };
 
-   
-    if (!todo) {
-      return res.status(404).json({ error: "Todo item not found" });
-    }
+        const result = await pool.query(query);
 
-    
-    todo.completed = true; 
-    await todo.save();
+        // Check if a todo was updated
+        if (result.rowCount === 0) {
+            return res.status(404).json({ error: "Todo item not found" });
+        }        
+        const updatedTodo = result.rows[0];
 
-    
-return  res.status(200).json(todo);
-
+        return res.status(200).json(updatedTodo);
     } catch (error) {
-        console.log(error);
-        return  res.status(500).send("Internal server Error")
+        console.error('Error updating todo status:', error);
+        return res.status(500).send("Internal server Error");
     }
 }
 
 export {updateStatus}
 
+//handle edit
 const handleEdit=async(req,res)=>{
     try {
-        const todoId = req.params.id;
-        const title=req.body.title
-        console.log(todoId,title);
+        const { id } = req.params;
+        const { title } = req.body;
 
-    const todo = await Todo.findById(todoId);
-    console.log(todo);
-   
-    if (!todo) {
-      return res.status(404).json({ error: "Todo item not found" });
-    }
+        if (!title) {
+            return res.status(400).json({ error: "Title is required" });
+        }
 
-    
-    todo.title = title; 
-    await todo.save();
- 
-return  res.status(200).json(todo);
+        const query = {
+            text: 'UPDATE todos SET title = $1 WHERE id = $2 RETURNING *',
+            values: [title, id]
+        };
 
-        
+        const result = await pool.query(query);
+
+        if (result.rowCount === 0) {
+            return res.status(404).json({ error: "Todo item not found" });
+        }
+
+        const updatedTodo = result.rows[0];
+
+        return res.status(200).json(updatedTodo);
     } catch (error) {
-        console.log(error);
-        return  res.status(500).send("Internal server Error");
-        
+        console.error('Error updating todo title:', error);
+        return res.status(500).send("Internal server Error");
     }
+
 }
 
 export {handleEdit}
@@ -110,25 +125,25 @@ export {handleEdit}
 
 const handleDelete=async(req,res)=>{
     try {
+        const { id } = req.params;
 
-        const todoId = req.params.id;
-      
+        const query = {
+            text: 'DELETE FROM todos WHERE id = $1 RETURNING *',
+            values: [id]
+        };
 
+        const result = await pool.query(query);
 
-        const deletedTodo = await Todo.findByIdAndDelete(todoId);
-
-    
-        if (!deletedTodo) {
+        if (result.rowCount === 0) {
             return res.status(404).json({ error: "Todo item not found" });
         }
 
-      
+        const deletedTodo = result.rows[0];
+
         return res.status(200).json(deletedTodo);
-        
     } catch (error) {
-        console.log(error);
-        return  res.status(500).send("Internal server Error");
-        
+        console.error('Error deleting todo:', error);
+        return res.status(500).send("Internal server Error");
     }
 }
 export {handleDelete}

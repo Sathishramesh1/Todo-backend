@@ -24,6 +24,7 @@ app.use(express.json());
 //
 (async () => {
   try {
+    console.log(process.env.DB_HOST)
       await dbconnection();
 
       const PORT = process.env.PORT || 3000;

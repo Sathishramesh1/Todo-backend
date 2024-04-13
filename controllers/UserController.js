@@ -1,5 +1,4 @@
 import * as bcrypt from 'bcrypt'
-import {User} from '../model/User.js'
 import jwt from 'jsonwebtoken';
 import { pool } from '../database/dbconnection.js';
 
