@@ -1,4 +1,4 @@
-import { pool } from '../database/dbconnection';
+import { pool } from '../database/dbconnection.js';
 import jwt from 'jsonwebtoken'
 
  async function getUserById(id) {
