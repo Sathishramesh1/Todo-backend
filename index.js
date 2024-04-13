@@ -21,26 +21,28 @@ app.use(express.json());
 
 
 
+//
+(async () => {
+  try {
+      await dbconnection();
 
-//database connection
-await dbconnection()
- 
-    const PORT = process.env.PORT || 3000;
+      const PORT = process.env.PORT || 3000;
 
-    // Routes
-    app.use("/api/user/v1", UserRouter);
-    app.use("/api/todo/v1", isAuthorized, TodoRouter);
+      // Routes
+      app.use("/api/user/v1", UserRouter);
+      app.use("/api/todo/v1", isAuthorized, TodoRouter);
 
-    // Default route
-    app.get("/", (req, res) => {
-      return res.status(200).send("Server working");
-    });
+      // Default route
+      app.get("/", (req, res) => {
+          return res.status(200).send("Server working");
+      });
 
-    // Start server
-    app.listen(PORT, () => {
-      console.log(`Server running on port ${PORT}`);
-    });
-
-  
-   
-  
+      // Start server
+      app.listen(PORT, () => {
+          console.log(`Server running on port ${PORT}`);
+      });
+  } catch (error) {
+      console.error('Error connecting to the database:', error);
+      process.exit(1);
+  }
+})();
