@@ -1,33 +1,46 @@
 import * as bcrypt from 'bcrypt'
 import {User} from '../model/User.js'
-import jwt from 'jsonwebtoken'
+import jwt from 'jsonwebtoken';
+import { pool } from '../database/dbconnection.js';
 
 
 
 //user login
 const Login=async(req,res)=>{
+
+    const { email, password } = req.body;
+
+    if (!email || !password) {
+        return res.status(400).json({ message: 'Email and password are required.' });
+    }
+
+    const client = await pool.connect();
+
     try {
-        const {email,password}=req.body;
-        let user= await User.findOne({email:email});
+        // Query to find the user by email
+        const userQuery = 'SELECT * FROM users WHERE email = $1';
+        const userResult = await client.query(userQuery, [email]);
 
-if (!user) {
-    return res.status(401).json({ message: "Email is not Registered" });
-      }
+        if (userResult.rows.length === 0) {
+            return res.status(401).json({ message: 'Email is not registered.' });
+        }
 
-const passwordMatch = await bcrypt.compare(password, user.password);
+        const user = userResult.rows[0];
 
-if (!passwordMatch) {
-         return res.status(401).json({ message: "Wrong Password" });
-      }
-           
-const jwttoken = jwt.sign({id:user._id}, process.env.SECRET_KEY);
-        
-          res.status(200).json({ jwttoken,message:"login success" });    
-    } 
-    catch (error) {
-        console.log(error);
-        res.status(500).send("Internal server Error")
-        
+        // Compare the provided password with the hashed password in the database
+        const isMatch = await bcrypt.compare(password, user.password);
+        if (!isMatch) {
+            return res.status(401).json({ message: 'Invalid password.' });
+        }
+
+        // Generate jwt token
+        const token = jwt.sign({ id: user.id }, process.env.JWT_SECRET, { expiresIn: '1h' });
+        res.json({ message: 'Login successful', token });
+    } catch (error) {
+        console.error('Login error:', error);
+        res.status(500).json({ message: 'Internal server error' });
+    } finally {
+        client.release();  
     }
 
 }
@@ -35,27 +48,28 @@ const jwttoken = jwt.sign({id:user._id}, process.env.SECRET_KEY);
 export {Login}
 
 
-//
+//registering new users
 const Register=async(req,res)=>{
- 
-    try{
-        // Check if this user already exisits
-    let user = await User.findOne({ email: req.body.email });
-    // console.log(user)
-    if (user) {
-      return res.status(400).send('That user already exisits!');}
 
-    const {password}=req.body;
-    const hashedPassword = await bcrypt.hash(password,10)
-    const newUser= await new User({ ...req.body, password: hashedPassword }).save();
-    
-   return  res.status(201).json({
-        status:'success',
-        message:"new user created"
-    })
-    }catch(err){
-        console.log("error in creating new user",err);
-       return res.status(500).send("Internal Error");
+    const { name, email, password } = req.body;
+
+    try {
+        // Check if user already exists
+        const existingUser = await pool.query('SELECT * FROM users WHERE email = $1', [email]);
+        if (existingUser.rows.length > 0) {
+            return res.status(400).json({ error: 'User already exists' });
+        }
+
+        // Hash the password
+        const hashedPassword = await bcrypt.hash(password, 10);
+
+        //  new user 
+        await pool.query('INSERT INTO users (name, email, password) VALUES ($1, $2, $3)', [name, email, hashedPassword]);
+
+        return res.status(201).json({ message: 'New user created' });
+    } catch (error) {
+        console.error('Error creating new user:', error);
+        return res.status(500).json({ error: 'Internal Server Error' });
     }
 
 }

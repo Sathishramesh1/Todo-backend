@@ -23,24 +23,24 @@ app.use(express.json());
 
 
 //database connection
-dbconnection();
+await dbconnection()
+ 
+    const PORT = process.env.PORT || 3000;
 
-const PORT=process.env.PORT;
+    // Routes
+    app.use("/api/user/v1", UserRouter);
+    app.use("/api/todo/v1", isAuthorized, TodoRouter);
 
+    // Default route
+    app.get("/", (req, res) => {
+      return res.status(200).send("Server working");
+    });
 
-//ROUTES
-app.use("/api/user/v1",UserRouter);
-app.use("/api/todo/v1",isAuthorized,TodoRouter);
+    // Start server
+    app.listen(PORT, () => {
+      console.log(`Server running on port ${PORT}`);
+    });
 
-
-
-
-app.get("/",(req,res)=>{
-    return res.status(200).send("server working");
-})
-
-
-
-app.listen(PORT,()=>{
-    console.log("server running on ",PORT);  
-})
+  
+   
+  
