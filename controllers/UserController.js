@@ -1,6 +1,7 @@
 import * as bcrypt from 'bcrypt'
 import jwt from 'jsonwebtoken';
 import { pool } from '../database/dbconnection.js';
+import { createTables } from '../model/postgres-user-schema.js';
 
 
 
@@ -33,7 +34,7 @@ const Login=async(req,res)=>{
         }
 
         // Generate jwt token
-        const token = jwt.sign({ id: user.id }, process.env.JWT_SECRET, { expiresIn: '1h' });
+        const token = jwt.sign({ id: user.id }, process.env.JWT_SECRET);
         res.json({ message: 'Login successful', token });
     } catch (error) {
         console.error('Login error:', error);
@@ -54,6 +55,7 @@ const Register=async(req,res)=>{
 
     try {
         // Check if user already exists
+        await createTables();
         const existingUser = await pool.query('SELECT * FROM users WHERE email = $1', [email]);
         if (existingUser.rows.length > 0) {
             return res.status(400).json({ error: 'User already exists' });

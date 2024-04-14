@@ -1,18 +1,28 @@
 import { pool } from '../database/dbconnection.js';
 import jwt from 'jsonwebtoken'
 
- async function getUserById(id) {
+async function getUserById(id) {
+  let client;
+
   try {
-    const query = {
-      text: 'SELECT _id, name, email FROM users WHERE _id = $1',
-      values: [id],
-    };
-    const result = await pool.query(query);
-    return result.rows[0]; // Assuming only one user is returned
+    client = await pool.connect(); // Acquire client from the pool
+    const query = 'SELECT id, name, email FROM users WHERE id = $1';
+    console.log(query);
+    const result = await client.query(query, [id]);
+    const user = result.rows[0];
+    if (!user) {
+      throw new Error('No user found');
+    }
+    return user;
   } catch (error) {
     throw new Error('Error fetching user from the database');
+  } finally {
+    if (client) {
+      client.release(); // Release the client back to the pool
+    }
   }
-  }
+}
+
 
 
 
@@ -22,7 +32,9 @@ const isAuthorized = async (req,res,next) => {
     if (req.header) {
       try {
         token = await req.headers["x-auth-token"];
-        const decode = jwt.verify(token, process.env.SECRET_KEY);
+        
+        const decode = jwt.verify(token, process.env.JWT_SECRET);
+        console.log(decode)
         req.user = await getUserById(decode.id);
         next();
         

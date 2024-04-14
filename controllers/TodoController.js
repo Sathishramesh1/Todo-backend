@@ -1,11 +1,12 @@
 import { pool } from '../database/dbconnection.js';
+import {  createTodosTableIfNotExists } from '../model/postgres-user-schema.js';
 
 const getAllTodo=async(req,res)=>{
     try {
     
         const query = {
             text: 'SELECT * FROM todos WHERE user_id = $1',
-            values: [req.user._id]
+            values: [req.user.id]
         };
 
         // Execute the query using the datase
@@ -30,13 +31,15 @@ const createTodo=async(req,res)=>{
     try {
 
         const { title } = req.body;
+         await createTodosTableIfNotExists();
+         
 
         if (!title) {
             return res.status(400).send("Title is required");
         }
         const query = {
             text: 'INSERT INTO todos (title, user_id) VALUES ($1, $2) RETURNING *',
-            values: [title, req.user._id]
+            values: [title, req.user.id]
         };
 
     
@@ -61,11 +64,9 @@ export {createTodo}
 
 const updateStatus=async(req,res)=>{
     try {
-
         const todoId = req.params.id;
-
         const query = {
-            text: 'UPDATE todos SET completed = $1 WHERE id = $2 RETURNING *',
+            text: 'UPDATE todos SET status = $1 WHERE id = $2 RETURNING *',
             values: [true, todoId]
         };
 
