@@ -2,10 +2,10 @@ import pkg from 'pg';
 const { Pool } = pkg;
 
 const pool = new Pool({
-  user: process.env.DB_USER,
+  user: "postgres",
   host: process.env.DB_HOST,
-  database: process.env.DB_NAME,
-  password: process.env.DB_PASSWORD,
+  // database: "postgres",
+  password:"mypassword",
   port: process.env.DB_PORT,
 });
 
@@ -23,3 +23,4 @@ const dbconnection = async () => {
 };
 
 export { pool, dbconnection };
+

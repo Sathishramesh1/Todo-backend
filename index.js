@@ -22,10 +22,9 @@ app.use(express.json());
 
 
 //
-(async () => {
-  try {
+
     console.log(process.env.DB_HOST)
-      await dbconnection();
+ dbconnection().then(()=>console.log("database connected")).catch((error)=>console.log(error));
 
       const PORT = process.env.PORT || 3000;
 
@@ -42,8 +41,3 @@ app.use(express.json());
       app.listen(PORT, () => {
           console.log(`Server running on port ${PORT}`);
       });
-  } catch (error) {
-      console.error('Error connecting to the database:', error);
-      process.exit(1);
-  }
-})();
